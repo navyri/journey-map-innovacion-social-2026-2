@@ -44,11 +44,11 @@
 
     /* ---------- contenido del mapa ---------- */
     const STAGES = [
-        { name: 'Descubrimiento', icon: '💡', color: 'var(--pink)' },
-        { name: 'Consideración', icon: '🔍', color: 'var(--orange)' },
-        { name: 'Primer uso', icon: '🚩', color: 'var(--lime)' },
-        { name: 'Uso continuo', icon: '🔁', color: 'var(--teal)' },
-        { name: 'Recomendación', icon: '📣', color: 'var(--lav)' }
+        { name: 'Tengo el vape', icon: '💨', color: 'var(--pink)' },
+        { name: 'Se me acaba', icon: '🔋', color: 'var(--orange)' },
+        { name: '¿Y ahora qué?', icon: '🤔', color: 'var(--lime)' },
+        { name: 'Encontrar el punto', icon: '📍', color: 'var(--teal)' },
+        { name: 'Libre del vape', icon: '✅', color: 'var(--lav)' }
     ];
 
     const ROWS = {
@@ -90,7 +90,8 @@
     function blankState() {
         const cells = {};
         TEXT_ORDER.forEach(k => { cells[k] = ['', '', '', '', '']; });
-        return { mode: 'equipo', project: '', members: '', author: '', cells: cells, emotions: [15, 50, 65, 45, 85] };
+        /* Arco típico con el prototipo: uso normal → se agota → no sabe qué hacer → encuentra el punto → queda libre */
+        return { mode: 'equipo', project: '', members: '', author: '', cells: cells, emotions: [70, 45, 25, 60, 90] };
     }
     let state = blankState();
     let readOnly = false;
