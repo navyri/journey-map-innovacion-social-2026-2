@@ -52,6 +52,22 @@
         toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
     }
 
+    /* ---------- ojito: previsualizar u ocultar la contraseña ---------- */
+    function eyeIcon(hidden) {
+        const eye = $('btn-eye');
+        eye.textContent = hidden ? '🙈' : '👁️';
+        eye.setAttribute('aria-pressed', String(hidden));
+        eye.setAttribute('aria-label', hidden ? 'Ocultar la contraseña' : 'Mostrar la contraseña');
+    }
+    function resetEye() { $('pw').type = 'password'; eyeIcon(false); }
+    $('btn-eye').addEventListener('click', () => {
+        const inp = $('pw');
+        const nowVisible = inp.type === 'password';
+        inp.type = nowVisible ? 'text' : 'password';
+        eyeIcon(nowVisible);
+        inp.focus();
+    });
+
     /* ---------- acceso ---------- */
     function tryUnlock() {
         const val = $('pw').value;
@@ -96,6 +112,7 @@
         unlocked = false;
         records = [];
         $('pw').value = '';
+        resetEye();
         $('pw-err').hidden = true;
         $('teams').innerHTML = '';
         $('stats').innerHTML = '';

@@ -273,8 +273,28 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
 
 /* ===== panel privado ===== */
 .gate { max-width: 460px; margin: 4vh auto 0 }
-.pw-wrap { display: flex; gap: .5rem; flex-wrap: wrap }
-.pw-wrap input { flex: 1 1 200px }
+/* campo de contraseña: píldora con el mismo lenguaje visual del proyecto */
+.pw-wrap { display: flex; gap: .55rem; align-items: stretch }
+.pw-field { position: relative; flex: 1 1 220px; min-width: 0 }
+.pw-field input {
+    width: 100%; min-height: 52px; background: #fff; color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 100px; outline: none;
+    padding: .8rem 3.15rem .8rem 1.15rem; font-size: 1rem; font-family: var(--body);
+    box-shadow: 0 3px 0 rgba(23, 17, 15, .18); transition: box-shadow .15s, border-color .15s;
+}
+.pw-field input::placeholder { opacity: .5 }
+.pw-field input:focus { border-color: var(--lav); box-shadow: 0 0 0 4px rgba(139, 92, 246, .22) }
+.pw-eye {
+    position: absolute; right: .35rem; top: 50%; transform: translateY(-50%);
+    width: 42px; height: 42px; display: grid; place-items: center; padding: 0;
+    border: 2px solid transparent; border-radius: 50%; background: transparent;
+    font-size: 1.1rem; line-height: 1; cursor: pointer;
+    transition: background .12s, border-color .12s, transform .12s;
+}
+.pw-eye:hover { background: var(--bg-mid); border-color: var(--ink) }
+.pw-eye:active { transform: translateY(-50%) scale(.92) }
+.pw-eye:focus-visible { outline: 3px solid var(--lav); outline-offset: 2px }
+.pw-wrap .btn { width: auto; min-height: 52px; align-self: stretch }
 .toolbar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-bottom: 1.1rem }
 .toolbar .search { flex: 1 1 220px; background: #fff; border: 2px solid var(--ink); border-radius: 100px; padding: .7rem 1.1rem; outline: none; min-width: 0 }
 .toolbar .search:focus { box-shadow: 0 0 0 4px rgba(139, 92, 246, .22) }
@@ -360,6 +380,9 @@ body { -webkit-tap-highlight-color: rgba(200, 242, 59, .45) }
     .modal-card { padding: 1.3rem 1.1rem 1.2rem }
     .map-head .acts { grid-template-columns: 1fr }
     .field input, .field textarea, .field select { font-size: 16px }
+    .pw-wrap { flex-direction: column }
+    .pw-wrap .btn { width: 100% }
+    .pw-field input { font-size: 16px }
     .stage-card .f textarea { font-size: 16px }
     .stats .stat { flex: 1 1 auto; text-align: center }
 }

@@ -35,8 +35,13 @@
             <h2 class="box-title">🔐 Acceso del equipo</h2>
             <p class="box-sub">Ingresa la contraseña acordada para ver las respuestas de todos los equipos.</p>
             <div class="pw-wrap">
-                <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
-                <button class="btn" id="btn-unlock" type="button" style="width:auto">Entrar</button>
+                <div class="pw-field">
+                    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"
+                        aria-label="Contraseña del panel">
+                    <button class="pw-eye" id="btn-eye" type="button" aria-pressed="false"
+                        aria-label="Mostrar la contraseña" title="Mostrar u ocultar la contraseña">👁️</button>
+                </div>
+                <button class="btn" id="btn-unlock" type="button">Entrar</button>
             </div>
             <p class="err" id="pw-err" hidden>Contraseña incorrecta. Inténtalo de nuevo.</p>
             <div class="divider">¿Eres un equipo del salón?</div>
