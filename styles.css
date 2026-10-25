@@ -133,6 +133,14 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
 .btn.soft { background: #fff }
 .btn.small { width: auto; padding: .55rem 1.1rem; font-size: .88rem; box-shadow: 0 3px 0 var(--ink) }
 
+/* botones sobre fondos oscuros (cabeceras) */
+.map-head .btn.soft { background: var(--cream); color: var(--ink) }
+.map-head .btn.ghost, .map-head .btn.outline {
+    background: transparent; color: var(--cream); border-color: var(--cream);
+    box-shadow: 0 3px 0 rgba(255, 246, 236, .35);
+}
+.map-head .btn.outline:hover { background: var(--cream); color: var(--ink) }
+
 .divider { display: flex; align-items: center; gap: .9rem; margin: 1.6rem 0 1rem; font-family: var(--display); font-weight: 700; font-size: .85rem; opacity: .75 }
 .divider::before, .divider::after { content: ""; flex: 1; height: 2px; background: rgba(23, 17, 15, .25) }
 
@@ -318,12 +326,21 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
 #toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible }
 
 /* ===== responsive ===== */
+body { -webkit-tap-highlight-color: rgba(200, 242, 59, .45) }
+
 @media (max-width: 900px) {
-    .page { padding: 4vh 5vw 8vh; }
+    .page { padding: 4vh 5vw calc(8vh + env(safe-area-inset-bottom)); }
     .top { flex-direction: column; gap: .9rem; }
     .corner { align-self: flex-start }
     .map-head { flex-direction: column; align-items: stretch }
-    .map-head .acts .btn { width: 100% }
+    .map-head .acts { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem }
+    .map-head .acts .btn { width: 100%; min-height: 48px }
+    .toolbar { gap: .5rem }
+    .toolbar .search { flex: 1 1 100%; font-size: 16px; min-height: 48px }
+    .btn { min-height: 48px }
+    .team > summary { padding: .9rem 1rem; cursor: pointer }
+    .team .chev { padding: .4rem .9rem }
+    .box { border-radius: 20px }
 }
 
 @media (max-width: 520px) {
@@ -334,6 +351,10 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
     .summary b { min-width: 0 }
     .modal-acts { flex-direction: column }
     .modal-card { padding: 1.3rem 1.1rem 1.2rem }
+    .map-head .acts { grid-template-columns: 1fr }
+    .field input, .field textarea, .field select { font-size: 16px }
+    .stage-card .f textarea { font-size: 16px }
+    .stats .stat { flex: 1 1 auto; text-align: center }
 }
 
 @media (prefers-reduced-motion: reduce) {

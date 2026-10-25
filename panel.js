@@ -107,6 +107,21 @@
     }
     $('btn-refresh').addEventListener('click', load);
 
+    /* ---------- cerrar sesión ---------- */
+    $('btn-logout').addEventListener('click', () => {
+        sessionStorage.removeItem('vc_panel');
+        unlocked = false;
+        records = [];
+        $('pw').value = '';
+        $('pw-err').hidden = true;
+        $('teams').innerHTML = '';
+        $('stats').innerHTML = '';
+        $('view-panel').hidden = true;
+        $('view-gate').hidden = false;
+        $('pw').focus();
+        toast('Sesión cerrada 🔒');
+    });
+
     /* ---------- agrupar por equipo ---------- */
     function groups() {
         const map = new Map();
