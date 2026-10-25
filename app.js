@@ -395,7 +395,7 @@
         } catch (err) {
             console.error(err);
             loginError(isRemote
-                ? 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.'
+                ? 'No pudimos cargar los datos. Revisa tu conexión e inténtalo de nuevo.'
                 : 'Ocurrió un error al leer los datos. Inténtalo de nuevo.');
         } finally {
             btn.disabled = false;
@@ -470,7 +470,7 @@
                 ${isTeam ? `<div><b>Miembros</b><span>${esc(state.members)}</span></div>` : ''}
                 <div><b>Llenado por</b><span>${isTeam ? 'Todo el equipo' : esc(state.author)}</span></div>
                 <div><b>Fecha</b><span>${new Date().toLocaleString('es-CO')}</span></div>
-                <div><b>Estado</b><span>✅ Enviado correctamente${isRemote ? '' : ' (modo local: solo en este dispositivo)'}</span></div>`;
+                <div><b>Estado</b><span>✅ Enviado correctamente${isRemote ? '' : ' (guardado solo en este dispositivo)'}</span></div>`;
             showView('done');
             toast('Mapa guardado ✅');
         } catch (e) {

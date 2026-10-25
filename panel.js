@@ -95,7 +95,7 @@
         try {
             records = await DB.list();
             $('panel-updated').textContent =
-                (isRemote ? 'Supabase · sincronizado ' : 'Modo local (solo este dispositivo) · ') +
+                (isRemote ? 'Actualizado ' : 'Solo en este dispositivo · ') +
                 new Date().toLocaleString('es-CO');
             render();
         } catch (e) {
