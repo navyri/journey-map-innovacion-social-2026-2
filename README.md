@@ -8,11 +8,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Innovaci%C3%B3n%20social-2026--2-F2705C?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Universidad%20EIA-Medell%C3%ADn-17110F?style=flat-square"/>
   <img src="https://img.shields.io/badge/econom%C3%ADa%20circular-circular-C8F23B?style=flat-square"/>
   <img src="https://img.shields.io/badge/residuo-RAEE%20%2B%20bater%C3%ADa%20de%20litio-4BB3E6?style=flat-square"/>
   <img src="https://img.shields.io/badge/aprovechamiento-filamento%203D-F27BB5?style=flat-square"/>
-  <img src="https://img.shields.io/badge/curso-Daniela%20L%C3%B3pez%20Montoya-8B5CF6?style=flat-square"/>
 </p>
 
 **VapeCycle** es un anteproyecto de **innovación social** que propone un sistema universitario de
@@ -251,18 +249,9 @@ los valores de la innovación social y la economía circular, fundamentales para
 
 ## Equipo
 
-| Rol | Nombre |
-|---|---|
-| Docente | **Daniela López Montoya** |
-| Integrantes | **María José Muñoz** · **Daniel Barth** · **Ricardo Vélez** · **Anniela Galvis** · **Mariana Esguerra** |
+Anteproyecto **VapeCycle** — asignatura de *Innovación social*, 2026.
 
-**Universidad EIA** — Innovación social · Medellín · 2026
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Innovaci%C3%B3n%20social-2026--2-F2705C?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Universidad%20EIA-Medell%C3%ADn-17110F?style=flat-square"/>
-  <img src="https://img.shields.io/badge/econom%C3%ADa%20circular-REUTILIZA-C8F23B?style=flat-square"/>
-</p>
+> Los nombres de los integrantes y de la docente se dejan fuera de este archivo a propósito.
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&height=120&section=footer&color=17110F" alt=""/>
