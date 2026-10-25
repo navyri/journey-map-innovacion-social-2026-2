@@ -24,8 +24,9 @@
             <div>
                 <span class="tag">Journey Map · Innovación social</span>
                 <h1 class="h1">Mapa de viaje del usuario</h1>
-                <p class="sub">Proyecto <b>Vape Cycle</b> — registra a tu equipo, llena el mapa de las 5 etapas y
-                    guárdalo. Solo se envía una vez, así que revísalo bien antes de confirmar.</p>
+                <p class="sub">Proyecto <b>Vape Cycle</b> — elige si llenas el mapa <b>en equipo</b> o de forma
+                    <b>individual</b>, completa las 5 etapas y guárdalo. Solo se envía una vez, así que revísalo
+                    bien antes de confirmar.</p>
             </div>
             <span class="corner">#InnovaciónSocial · 2026-2</span>
         </div>
@@ -33,25 +34,39 @@
         <!-- ============ 1. LOGIN DEL EQUIPO ============ -->
         <section id="view-login" class="box">
             <h2 class="box-title">🚪 Entrada de equipos</h2>
-            <p class="box-sub">Completa los datos de tu equipo. Con el <b>nombre del proyecto</b> entras a tu mapa;
-                si ese proyecto ya guardó su mapa, no se podrá volver a enviar.</p>
+            <p class="box-sub">Elige si llenas el mapa <b>en equipo</b> (proyecto + miembros) o de forma
+                <b>individual</b> (solo tu nombre). Con ese dato entras a tu mapa; si ya fue enviado,
+                no se podrá volver a registrar.</p>
 
             <form id="login-form" class="login-grid" novalidate>
                 <div class="field">
-                    <label for="f-project">Nombre del proyecto <span>obligatorio</span></label>
-                    <input id="f-project" name="project" type="text" placeholder="Ej. Vape Cycle" autocomplete="off"
-                        maxlength="80" required>
+                    <label for="f-mode">¿Quién llenará este journey map? <span>elige una opción</span></label>
+                    <div class="select-wrap">
+                        <select id="f-mode" name="mode">
+                            <option value="equipo">👥 En equipo</option>
+                            <option value="individual">🙋 Individual (yo solo)</option>
+                        </select>
+                    </div>
+                    <p class="hint" id="mode-hint">Se registrará el proyecto con todos sus miembros.</p>
+                </div>
+
+                <div class="field-group" id="grp-team">
+                    <div class="field">
+                        <label for="f-project">Nombre del proyecto <span>obligatorio</span></label>
+                        <input id="f-project" name="project" type="text" placeholder="Ej. Vape Cycle"
+                            autocomplete="off" maxlength="80">
+                    </div>
+
+                    <div class="field">
+                        <label for="f-members">Miembros del equipo <span>obligatorio</span></label>
+                        <textarea id="f-members" name="members"
+                            placeholder="Escribe los nombres separados por coma o salto de línea…&#10;Ej. María Pérez, Juan López, Ana Gómez"></textarea>
+                        <p class="hint">Se mostrará como subtítulo del equipo en el panel de resultados.</p>
+                    </div>
                 </div>
 
                 <div class="field">
-                    <label for="f-members">Miembros del equipo <span>obligatorio</span></label>
-                    <textarea id="f-members" name="members"
-                        placeholder="Escribe los nombres separados por coma o salto de línea…&#10;Ej. María Pérez, Juan López, Ana Gómez"></textarea>
-                    <p class="hint">Se mostrará como subtítulo del equipo en el panel de resultados.</p>
-                </div>
-
-                <div class="field">
-                    <label for="f-author">Tu nombre personal <span>obligatorio</span></label>
+                    <label for="f-author" id="l-author">Tu nombre personal <span>obligatorio</span></label>
                     <input id="f-author" name="author" type="text" placeholder="¿Quién está llenando este mapa?"
                         autocomplete="name" maxlength="80" required>
                 </div>
@@ -108,6 +123,20 @@
     </div>
 
     <div id="toast"></div>
+
+    <!-- ============ AVISOS CON LA ESTÉTICA DEL PROYECTO ============ -->
+    <div class="modal-back" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-card">
+            <span class="tag" id="modal-tag">Confirmar</span>
+            <div class="modal-ic" id="modal-ic">⚠️</div>
+            <h3 class="modal-title" id="modal-title">Título del aviso</h3>
+            <p class="modal-msg" id="modal-msg">Mensaje</p>
+            <div class="modal-acts">
+                <button class="btn soft" id="modal-no" type="button">Cancelar</button>
+                <button class="btn" id="modal-yes" type="button">Aceptar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -111,10 +111,12 @@
     function groups() {
         const map = new Map();
         records.forEach(r => {
-            const k = norm(r.project) || '(sin proyecto)';
-            if (!map.has(k)) map.set(k, { project: r.project, members: '', items: [] });
+            const k = norm(r.project) || '(sin registro)';
+            const mode = r.mode || (r.members ? 'equipo' : 'individual');
+            if (!map.has(k)) map.set(k, { project: r.project, members: '', mode: mode, items: [] });
             const g = map.get(k);
             if (!g.members && r.members) g.members = r.members;
+            if (mode === 'equipo') g.mode = 'equipo';
             g.items.push(r);
         });
         return Array.from(map.values()).sort((a, b) =>
@@ -125,6 +127,10 @@
         const gs = groups();
         const totalMembers = new Set();
         gs.forEach(g => {
+            if (g.mode === 'individual') {
+                g.items.forEach(i => { if (i.author) totalMembers.add(norm(i.author)); });
+                return;
+            }
             String(g.members || '').split(/,|\n/).forEach(m => {
                 m = m.trim();
                 if (m) totalMembers.add(norm(m));
@@ -132,9 +138,9 @@
         });
 
         $('stats').innerHTML =
-            `<div class="stat"><b>${gs.length}</b> equipo${gs.length === 1 ? '' : 's'}</div>` +
+            `<div class="stat"><b>${gs.length}</b> registro${gs.length === 1 ? '' : 's'}</div>` +
             `<div class="stat"><b>${records.length}</b> mapa${records.length === 1 ? '' : 's'} enviado${records.length === 1 ? '' : 's'}</div>` +
-            `<div class="stat"><b>${totalMembers.size}</b> integrante${totalMembers.size === 1 ? '' : 's'}</div>`;
+            `<div class="stat"><b>${totalMembers.size}</b> participante${totalMembers.size === 1 ? '' : 's'}</div>`;
 
         if (!gs.length) {
             $('teams').innerHTML = '<div class="box"><p class="empty">Aún no hay respuestas registradas. ' +
@@ -146,6 +152,10 @@
     }
 
     function teamCard(g) {
+        const solo = g.mode === 'individual';
+        const subtitle = solo
+            ? 'Relleno individual · un solo participante'
+            : (g.members || 'Sin miembros registrados');
         const items = g.items.map(itemCard).join('');
         return `<details class="team" data-find="${esc(
             (g.project + ' ' + (g.members || '') + ' ' +
@@ -153,8 +163,9 @@
             <summary>
                 <div class="t-main">
                     <div class="t-title">${esc(g.project)}</div>
-                    <div class="t-members">${esc(g.members || 'Sin miembros registrados')}</div>
+                    <div class="t-members">${esc(subtitle)}</div>
                     <div class="t-meta">
+                        <span class="badge">${solo ? '🙋 Individual' : '👥 En equipo'}</span>
                         <span class="badge">${g.items.length} respuesta${g.items.length === 1 ? '' : 's'}</span>
                         <span class="badge lime">Última: ${esc(dateOf(g.items[0]))}</span>
                     </div>
@@ -206,17 +217,19 @@
     $('btn-csv').addEventListener('click', () => {
         if (!records.length) { toast('No hay respuestas para exportar'); return; }
 
-        const head = ['Proyecto', 'Miembros', 'Llenado por', 'Fecha', 'Etapa',
+        const head = ['Proyecto o participante', 'Modalidad', 'Miembros', 'Llenado por', 'Fecha', 'Etapa',
             'Necesidades', 'Puntos de contacto', 'Pensamientos', 'Soluciones', 'Emoción', 'Nivel de ánimo'];
         const rows = [head];
 
         records.forEach(r => {
             const cells = r.cells || {};
+            const mod = (r.mode || (r.members ? 'equipo' : 'individual')) === 'individual'
+                ? 'Individual' : 'En equipo';
             STAGES.forEach((s, i) => {
                 const lvl = (r.emotions || [])[i];
                 const e = emoOf(typeof lvl === 'number' ? lvl : 50);
                 rows.push([
-                    r.project || '', r.members || '', r.author || '', dateOf(r),
+                    r.project || '', mod, r.members || '', r.author || '', dateOf(r),
                     `${i + 1}. ${s.name}`,
                     (cells.needs || [])[i] || '',
                     (cells.touchpoints || [])[i] || '',

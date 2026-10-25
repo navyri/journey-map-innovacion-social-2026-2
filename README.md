@@ -24,6 +24,7 @@ todas las respuestas organizadas por equipo y exportarlas a Excel.
 ```sql
 create table if not exists public.journey_maps (
   id uuid primary key default gen_random_uuid(),
+  mode text not null default 'equipo',   -- 'equipo' | 'individual'
   project text not null,
   members text,
   author text,
@@ -85,11 +86,14 @@ git push -u origin main
 
 ## 4) Cómo lo usa el salón
 
-**Equipos:**
+**Equipos y participantes:**
 1. Abren el link → *Entrada de equipos*.
-2. Escriben: nombre del proyecto, miembros (separados por coma o salto de línea) y su nombre personal.
+2. Eligen en **¿Quién llenará este journey map?**
+   - **👥 En equipo** → aparecen *Nombre del proyecto* y *Miembros del equipo*.
+   - **🙋 Individual** → solo se pide *Tu nombre*.
 3. Llenan las 4 filas × 5 etapas y mueven el control deslizante de **emociones** de cada etapa.
-4. *Guardar mi mapa* → si el proyecto ya envió, el sistema lo detecta y solo muestra el mapa en modo lectura.
+4. *Guardar mi mapa* → aparece un aviso con la estética del proyecto para confirmar; si ese
+   registro ya envió, el sistema lo detecta y solo muestra el mapa en modo lectura.
 
 **Equipo Vape Cycle (panel):**
 1. En la misma página, botón *Ir al panel privado* (o directo a `panel.html`).

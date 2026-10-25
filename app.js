@@ -90,7 +90,7 @@
     function blankState() {
         const cells = {};
         TEXT_ORDER.forEach(k => { cells[k] = ['', '', '', '', '']; });
-        return { project: '', members: '', author: '', cells: cells, emotions: [15, 50, 65, 45, 85] };
+        return { mode: 'equipo', project: '', members: '', author: '', cells: cells, emotions: [15, 50, 65, 45, 85] };
     }
     let state = blankState();
     let readOnly = false;
@@ -110,6 +110,36 @@
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
     }
+
+    /* ---------- avisos modales (misma estética del proyecto) ---------- */
+    let modalResolve = null;
+    function closeModal(value) {
+        const m = $('modal');
+        if (m.hidden) return;
+        m.hidden = true;
+        document.body.style.overflow = '';
+        if (modalResolve) { const r = modalResolve; modalResolve = null; r(value); }
+    }
+    function modalAsk(opt) {
+        return new Promise(resolve => {
+            const m = $('modal');
+            modalResolve = resolve;
+            $('modal-tag').textContent = opt.tag || 'Aviso';
+            $('modal-ic').textContent = opt.icon || '⚠️';
+            $('modal-title').textContent = opt.title || '';
+            $('modal-msg').textContent = opt.message || '';
+            $('modal-yes').textContent = opt.ok || 'Aceptar';
+            $('modal-no').textContent = opt.cancel || 'Cancelar';
+            $('modal-no').hidden = opt.cancel === false;
+            m.hidden = false;
+            document.body.style.overflow = 'hidden';
+            $('modal-yes').focus();
+        });
+    }
+    $('modal-yes').addEventListener('click', () => closeModal(true));
+    $('modal-no').addEventListener('click', () => closeModal(false));
+    $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(false); });
 
     function showView(name) {
         $('view-login').hidden = name !== 'login';
@@ -286,17 +316,35 @@
         e.textContent = msg || '';
     }
 
+    /* ---------- modalidad: individual o en equipo ---------- */
+    function applyMode() {
+        const mode = $('f-mode').value;
+        const team = mode === 'equipo';
+        $('grp-team').hidden = !team;
+        $('l-author').innerHTML = team
+            ? 'Tu nombre personal <span>obligatorio</span>'
+            : 'Tu nombre <span>obligatorio</span>';
+        $('mode-hint').textContent = team
+            ? 'Se registrará el proyecto con todos sus miembros.'
+            : 'Se registrará solo tu nombre y aparecerás en el panel por separado.';
+        $('f-author').placeholder = team ? '¿Quién está llenando este mapa?' : 'Escribe tu nombre completo';
+        loginError('');
+    }
+    $('f-mode').addEventListener('change', applyMode);
+    applyMode();
+
     $('login-form').addEventListener('submit', async ev => {
         ev.preventDefault();
         loginError('');
 
-        const project = $('f-project').value.trim();
-        const members = $('f-members').value.trim();
+        const mode = $('f-mode').value;
         const author = $('f-author').value.trim();
+        const project = mode === 'equipo' ? $('f-project').value.trim() : author;
+        const members = mode === 'equipo' ? $('f-members').value.trim() : '';
 
-        if (!project) return loginError('Escribe el nombre de tu proyecto.');
-        if (!members) return loginError('Agrega al menos un miembro del equipo.');
-        if (!author) return loginError('Escribe tu nombre personal.');
+        if (mode === 'equipo' && !project) return loginError('Escribe el nombre de tu proyecto.');
+        if (mode === 'equipo' && !members) return loginError('Agrega al menos un miembro del equipo.');
+        if (!author) return loginError(mode === 'equipo' ? 'Escribe tu nombre personal.' : 'Escribe tu nombre.');
 
         const btn = $('btn-enter');
         btn.disabled = true;
@@ -307,6 +355,7 @@
             const dup = all.find(r => norm(r.project) === norm(project));
 
             state = blankState();
+            state.mode = mode;
             state.project = project;
             state.members = members.replace(/\s*\n\s*/g, ', ');
             state.author = author;
@@ -315,6 +364,7 @@
 
             if (dup) {
                 // Envío único: se muestra el mapa ya registrado (solo lectura)
+                state.mode = dup.mode || (dup.members ? 'equipo' : 'individual');
                 state.project = dup.project;
                 state.members = dup.members || '';
                 state.author = dup.author || '';
@@ -328,9 +378,12 @@
                 savedRecord = dup;
 
                 $('map-notice').hidden = false;
-                $('map-notice').innerHTML = `<b>⚠️ El proyecto “${esc(dup.project)}” ya envió su mapa.</b>
-                    Solo se permite un envío por equipo, así que aquí puedes consultar lo que registraron
-                    (persona que lo llenó: ${esc(dup.author || '—')}).`;
+                $('map-notice').innerHTML = state.mode === 'individual'
+                    ? `<b>⚠️ ${esc(dup.author || dup.project)} ya envió su mapa.</b>
+                        Solo se permite un envío por participante, así que aquí puedes consultar lo que registró.`
+                    : `<b>⚠️ El proyecto “${esc(dup.project)}” ya envió su mapa.</b>
+                        Solo se permite un envío por equipo, así que aquí puedes consultar lo que registraron
+                        (persona que lo llenó: ${esc(dup.author || '—')}).`;
                 $('save-bar').hidden = true;
                 toast('Este proyecto ya tiene un mapa guardado');
             } else {
@@ -354,7 +407,9 @@
 
     function fillHead() {
         $('mh-project').textContent = state.project;
-        $('mh-members').textContent = 'Miembros: ' + state.members;
+        $('mh-members').textContent = state.mode === 'individual'
+            ? ' Modalidad: Individual · un solo participante'
+            : 'Miembros: ' + state.members;
         $('mh-author').textContent = 'Llenado por: ' + state.author;
     }
 
@@ -383,8 +438,15 @@
             return;
         }
 
-        const ok = confirm(`¿Guardar el mapa del proyecto “${state.project}”?\n\n` +
-            'Recuerda: es un ENVÍO ÚNICO y no podrás modificarlo después.');
+        const isTeam = state.mode === 'equipo';
+        const ok = await modalAsk({
+            tag: 'Confirmar envío',
+            icon: isTeam ? '👥' : '🙋',
+            title: isTeam ? `¿Guardar el mapa de “${state.project}”?` : `¿Guardar tu mapa, ${state.author}?`,
+            message: 'Recuerda: es un ENVÍO ÚNICO y después no podrás modificarlo.',
+            ok: 'Sí, guardar',
+            cancel: 'Revisar otra vez'
+        });
         if (!ok) return;
 
         const btn = $('btn-save');
@@ -392,6 +454,7 @@
         btn.textContent = 'Guardando…';
 
         const rec = {
+            mode: state.mode,
             project: state.project,
             members: state.members,
             author: state.author,
@@ -403,8 +466,9 @@
             savedRecord = await DB.insert(rec);
             readOnly = true;
             $('done-summary').innerHTML = `
-                <div><b>Proyecto</b><span>${esc(state.project)}</span></div>
-                <div><b>Miembros</b><span>${esc(state.members)}</span></div>
+                <div><b>Modalidad</b><span>${isTeam ? '👥 En equipo' : '🙋 Individual'}</span></div>
+                <div><b>${isTeam ? 'Proyecto' : 'Participante'}</b><span>${esc(state.project)}</span></div>
+                ${isTeam ? `<div><b>Miembros</b><span>${esc(state.members)}</span></div>` : ''}
                 <div><b>Llenado por</b><span>${esc(state.author)}</span></div>
                 <div><b>Fecha</b><span>${new Date().toLocaleString('es-CO')}</span></div>
                 <div><b>Estado</b><span>✅ Enviado correctamente${isRemote ? '' : ' (modo local: solo en este dispositivo)'}</span></div>`;
