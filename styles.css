@@ -285,13 +285,19 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
 .pw-field input::placeholder { opacity: .5 }
 .pw-field input:focus { border-color: var(--lav); box-shadow: 0 0 0 4px rgba(139, 92, 246, .22) }
 .pw-eye {
-    position: absolute; right: .35rem; top: 50%; transform: translateY(-50%);
-    width: 42px; height: 42px; display: grid; place-items: center; padding: 0;
+    position: absolute; right: .3rem; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
     border: 2px solid transparent; border-radius: 50%; background: transparent;
-    font-size: 1.1rem; line-height: 1; cursor: pointer;
-    transition: background .12s, border-color .12s, transform .12s;
+    color: var(--ink); cursor: pointer;
+    transition: background .12s, border-color .12s, color .12s, transform .12s;
 }
-.pw-eye:hover { background: var(--bg-mid); border-color: var(--ink) }
+.pw-eye .ic { width: 21px; height: 21px; display: block }
+.pw-eye .ic-eye-off { display: none }
+.pw-eye.is-on .ic-eye { display: none }
+.pw-eye.is-on .ic-eye-off { display: block }
+.pw-eye:hover { background: var(--bg-mid); border-color: var(--ink); color: var(--lime) }
+.pw-field input:focus ~ .pw-eye { color: var(--lav) }
+.pw-field input:focus ~ .pw-eye:hover { color: var(--lime) }
 .pw-eye:active { transform: translateY(-50%) scale(.92) }
 .pw-eye:focus-visible { outline: 3px solid var(--lav); outline-offset: 2px }
 .pw-wrap .btn { width: auto; min-height: 52px; align-self: stretch }

@@ -53,11 +53,11 @@
     }
 
     /* ---------- ojito: previsualizar u ocultar la contraseña ---------- */
-    function eyeIcon(hidden) {
+    function eyeIcon(visible) {
         const eye = $('btn-eye');
-        eye.textContent = hidden ? '🙈' : '👁️';
-        eye.setAttribute('aria-pressed', String(hidden));
-        eye.setAttribute('aria-label', hidden ? 'Ocultar la contraseña' : 'Mostrar la contraseña');
+        eye.classList.toggle('is-on', !!visible);   // muestra el icono de "ojo tachado"
+        eye.setAttribute('aria-pressed', String(!!visible));
+        eye.setAttribute('aria-label', visible ? 'Ocultar la contraseña' : 'Mostrar la contraseña');
     }
     function resetEye() { $('pw').type = 'password'; eyeIcon(false); }
     $('btn-eye').addEventListener('click', () => {
