@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#17110F">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Vape Cycle · Panel privado</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="backdrop">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+    </div>
+
+    <div class="page">
+        <div class="top">
+            <div>
+                <span class="tag">Área restringida · Equipo Vape Cycle</span>
+                <h1 class="h1">Panel de resultados</h1>
+                <p class="sub">Todas las respuestas del journey map del salón, organizadas por equipo: título con el
+                    nombre del proyecto y subtítulo con sus miembros.</p>
+            </div>
+            <span class="corner">🔒 Solo Vape Cycle</span>
+        </div>
+
+        <!-- ============ ACCESO ============ -->
+        <section id="view-gate" class="box gate">
+            <h2 class="box-title">🔐 Acceso del equipo</h2>
+            <p class="box-sub">Ingresa la contraseña acordada para ver las respuestas de todos los equipos.</p>
+            <div class="pw-wrap">
+                <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
+                <button class="btn" id="btn-unlock" type="button" style="width:auto">Entrar</button>
+            </div>
+            <p class="err" id="pw-err" hidden>Contraseña incorrecta. Inténtalo de nuevo.</p>
+            <div class="divider">¿Eres un equipo del salón?</div>
+            <a class="btn soft" href="index.html">← Volver al mapa de viaje</a>
+        </section>
+
+        <!-- ============ RESULTADOS ============ -->
+        <section id="view-panel" hidden>
+            <div class="map-head">
+                <div class="who">
+                    <b>Respuestas del journey map</b>
+                    <span id="panel-updated">—</span>
+                </div>
+                <div class="acts">
+                    <button class="btn small soft" id="btn-refresh" type="button">↻ Actualizar</button>
+                    <button class="btn small" id="btn-csv" type="button">⬇ Exportar a Excel (CSV)</button>
+                    <a class="btn small ghost" href="index.html">← Mapa</a>
+                </div>
+            </div>
+
+            <div class="stats" id="stats"></div>
+
+            <div class="toolbar">
+                <input class="search" id="search" type="search" placeholder="Buscar equipo, miembro o proyecto…">
+            </div>
+
+            <div id="teams"></div>
+        </section>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="panel.js"></script>
+</body>
+
+</html>

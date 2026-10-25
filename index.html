@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#F2705C">
+    <meta name="description" content="Mapa de viaje del usuario · Vape Cycle · Innovación social 2026-2">
+    <title>Vape Cycle · Mapa de viaje</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="backdrop">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+    </div>
+
+    <div class="page">
+        <div class="top">
+            <div>
+                <span class="tag">Journey Map · Innovación social</span>
+                <h1 class="h1">Mapa de viaje del usuario</h1>
+                <p class="sub">Proyecto <b>Vape Cycle</b> — registra a tu equipo, llena el mapa de las 5 etapas y
+                    guárdalo. Solo se envía una vez, así que revísalo bien antes de confirmar.</p>
+            </div>
+            <span class="corner">#InnovaciónSocial · 2026-2</span>
+        </div>
+
+        <!-- ============ 1. LOGIN DEL EQUIPO ============ -->
+        <section id="view-login" class="box">
+            <h2 class="box-title">🚪 Entrada de equipos</h2>
+            <p class="box-sub">Completa los datos de tu equipo. Con el <b>nombre del proyecto</b> entras a tu mapa;
+                si ese proyecto ya guardó su mapa, no se podrá volver a enviar.</p>
+
+            <form id="login-form" class="login-grid" novalidate>
+                <div class="field">
+                    <label for="f-project">Nombre del proyecto <span>obligatorio</span></label>
+                    <input id="f-project" name="project" type="text" placeholder="Ej. Vape Cycle" autocomplete="off"
+                        maxlength="80" required>
+                </div>
+
+                <div class="field">
+                    <label for="f-members">Miembros del equipo <span>obligatorio</span></label>
+                    <textarea id="f-members" name="members"
+                        placeholder="Escribe los nombres separados por coma o salto de línea…&#10;Ej. María Pérez, Juan López, Ana Gómez"></textarea>
+                    <p class="hint">Se mostrará como subtítulo del equipo en el panel de resultados.</p>
+                </div>
+
+                <div class="field">
+                    <label for="f-author">Tu nombre personal <span>obligatorio</span></label>
+                    <input id="f-author" name="author" type="text" placeholder="¿Quién está llenando este mapa?"
+                        autocomplete="name" maxlength="80" required>
+                </div>
+
+                <button class="btn" id="btn-enter" type="submit">Entrar al mapa →</button>
+                <p class="err" id="login-err" hidden></p>
+            </form>
+
+            <div class="divider">¿Eres del equipo Vape Cycle?</div>
+            <a class="btn ghost" href="panel.html">🔐 Ir al panel privado de resultados</a>
+        </section>
+
+        <!-- ============ 2. MAPA EDITABLE ============ -->
+        <section id="view-map" hidden>
+            <div class="map-head">
+                <div class="who">
+                    <b id="mh-project">—</b>
+                    <span id="mh-members">—</span>
+                    <span id="mh-author">—</span>
+                </div>
+                <div class="acts">
+                    <button class="btn small soft" id="btn-exit" type="button">← Salir</button>
+                </div>
+            </div>
+
+            <div class="notice" id="map-notice" hidden></div>
+
+            <div class="board-wrap" id="board-wrap">
+                <div class="board" id="board"></div>
+            </div>
+            <div class="stages" id="stages" hidden></div>
+
+            <div class="save-bar" id="save-bar">
+                <p class="status" id="fill-status">Faltan 20 campos por completar</p>
+                <button class="btn" id="btn-save" type="button">✅ Guardar mi mapa (envío único)</button>
+                <p class="err" id="save-err" hidden></p>
+            </div>
+        </section>
+
+        <!-- ============ 3. CONFIRMACIÓN ============ -->
+        <section id="view-done" class="box" hidden>
+            <div class="done-icon">🎉</div>
+            <h2 class="box-title">¡Mapa guardado!</h2>
+            <p class="box-sub">Tu equipo ya quedó registrado en el journey map. El equipo Vape Cycle puede ver esta
+                respuesta en su panel privado.</p>
+
+            <div class="summary" id="done-summary"></div>
+
+            <div class="save-bar">
+                <button class="btn" id="btn-view-saved" type="button">Ver mi mapa (solo lectura)</button>
+                <button class="btn soft" id="btn-again" type="button">Entrar con otro proyecto</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
