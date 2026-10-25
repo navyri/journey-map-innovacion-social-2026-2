@@ -286,26 +286,32 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
     background: var(--cream); border: 2px solid var(--ink); border-radius: 20px;
     box-shadow: var(--shadow); overflow: hidden; margin-bottom: 1rem;
 }
-.team > summary {
-    list-style: none; cursor: pointer; padding: 1rem 1.1rem; display: flex; gap: .8rem; align-items: flex-start;
+.team .t-head {
+    padding: 1rem 1.1rem .7rem; display: flex; gap: .8rem; align-items: flex-start;
     justify-content: space-between; flex-wrap: wrap;
 }
-.team > summary::-webkit-details-marker { display: none }
-.team .t-main { min-width: 0 }
+.team .t-main { min-width: 0; flex: 1 1 240px }
 .team .t-title { font-family: var(--display); font-weight: 800; font-size: 1.2rem; line-height: 1.2; overflow-wrap: anywhere }
 .team .t-members { font-size: .85rem; opacity: .8; margin-top: .18rem; overflow-wrap: anywhere }
 .team .t-meta { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem }
-.team .chev { font-family: var(--display); font-weight: 800; background: var(--lime); border: 2px solid var(--ink); border-radius: 100px; padding: .25rem .8rem; font-size: .8rem; white-space: nowrap }
-.team[open] .chev { background: var(--bg-mid); color: var(--lime) }
-.team .t-body { padding: 0 1.1rem 1.2rem; border-top: 2px dashed rgba(23, 17, 15, .3); padding-top: 1rem }
+.team .t-head .btn { flex: 0 0 auto; align-self: center }
 
-.tstage { margin-bottom: 1rem; border-radius: 16px; border: 2px solid rgba(23, 17, 15, .2); overflow: hidden; background: #fff }
-.tstage h4 { margin: 0; padding: .55rem .85rem; font-family: var(--display); font-size: .95rem; background: var(--a); display: flex; gap: .45rem; align-items: center }
-.tstage .rows { padding: .7rem .85rem; display: grid; gap: .55rem }
-.tstage .r { font-size: .88rem; line-height: 1.5 }
-.tstage .r i { font-style: normal; font-family: var(--display); font-weight: 700; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; opacity: .6; display: block }
-.tstage .emo { display: flex; align-items: center; gap: .5rem; font-size: .88rem }
-.tstage .emo .big { font-size: 1.4rem }
+/* vista previa del recorrido dentro de la tarjeta */
+.team .t-preview { padding: 0 1.1rem 1.05rem }
+.pv-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    opacity: .55; margin-bottom: .4rem
+}
+.pv-curve {
+    background: #fff; border: 2px solid rgba(23, 17, 15, .2); border-radius: 14px;
+    padding: .45rem .55rem; height: 62px
+}
+.pv-curve svg { width: 100%; height: 100%; display: block }
+.pv-faces { display: grid; grid-template-columns: repeat(5, 1fr); gap: .4rem; margin-top: .45rem }
+.pv-faces .face {
+    background: var(--a, var(--cream)); border: 2px solid var(--ink); border-radius: 100px;
+    text-align: center; font-size: .98rem; line-height: 1.7
+}
 
 .resp { border: 2px solid rgba(23, 17, 15, .25); border-radius: 18px; padding: .9rem; margin-bottom: .9rem; background: rgba(255, 255, 255, .55) }
 .resp:last-child { margin-bottom: 0 }
@@ -338,8 +344,9 @@ body { -webkit-tap-highlight-color: rgba(200, 242, 59, .45) }
     .toolbar { gap: .5rem }
     .toolbar .search { flex: 1 1 100%; font-size: 16px; min-height: 48px }
     .btn { min-height: 48px }
-    .team > summary { padding: .9rem 1rem; cursor: pointer }
-    .team .chev { padding: .4rem .9rem }
+    .team .t-head { padding: .9rem 1rem .6rem }
+    .team .t-head .btn { width: 100%; align-self: stretch }
+    .team .t-preview { padding: 0 1rem 1rem }
     .box { border-radius: 20px }
 }
 

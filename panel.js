@@ -29,28 +29,10 @@
         }
     };
 
-    const STAGES = [
-        { name: 'Tengo el vape', icon: '💨', color: 'var(--pink)' },
-        { name: 'Se me acaba', icon: '🔋', color: 'var(--orange)' },
-        { name: '¿Y ahora qué?', icon: '🤔', color: 'var(--lime)' },
-        { name: 'Encontrar el punto', icon: '📍', color: 'var(--teal)' },
-        { name: 'Libre del vape', icon: '✅', color: 'var(--lav)' }
-    ];
-    const ROWS = [
-        { key: 'needs', label: 'Necesidades', icon: '🎯' },
-        { key: 'touchpoints', label: 'Puntos de contacto', icon: '📍' },
-        { key: 'thoughts', label: 'Pensamientos', icon: '💭' },
-        { key: 'solutions', label: 'Soluciones posibles', icon: '✅' }
-    ];
-    const BANDS = [
-        { max: 16, emoji: '😫', label: 'Frustrado' },
-        { max: 33, emoji: '😕', label: 'Confundido' },
-        { max: 50, emoji: '😐', label: 'Neutral' },
-        { max: 66, emoji: '🙂', label: 'Conforme' },
-        { max: 83, emoji: '😃', label: 'Feliz' },
-        { max: 100, emoji: '🤩', label: 'Encantado' }
-    ];
-    const emoOf = l => BANDS.find(b => l <= b.max) || BANDS[BANDS.length - 1];
+    /* etapas, filas y curva vienen del render compartido (map-render.js) */
+    const M = window.VapeMap;
+    const STAGES = M.STAGES;
+    const emoOf = M.emoOf;
 
     const $ = id => document.getElementById(id);
     const esc = s => String(s == null ? '' : s)
@@ -58,6 +40,7 @@
     const norm = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
 
     let records = [];
+    let currentGroups = [];
     let unlocked = false;
 
     let toastTimer = null;
@@ -116,6 +99,9 @@
         $('pw-err').hidden = true;
         $('teams').innerHTML = '';
         $('stats').innerHTML = '';
+        detailIndex = null;
+        $('dt-resp').innerHTML = '';
+        $('view-detail').hidden = true;
         $('view-panel').hidden = true;
         $('view-gate').hidden = false;
         $('pw').focus();
@@ -140,6 +126,7 @@
 
     function render() {
         const gs = groups();
+        currentGroups = gs;
         const totalMembers = new Set();
         gs.forEach(g => {
             if (g.mode === 'individual') {
@@ -166,59 +153,101 @@
         $('search').value = '';
     }
 
-    function teamCard(g) {
+    /* Tarjeta del equipo: identidad + vista previa + botón de detalle */
+    function teamCard(g, i) {
         const solo = g.mode === 'individual';
         const subtitle = solo
             ? 'Relleno individual · un solo participante'
             : (g.members || 'Sin miembros registrados');
-        const items = g.items.map(itemCard).join('');
-        return `<details class="team" data-find="${esc(
-            (g.project + ' ' + (g.members || '') + ' ' +
-                g.items.map(i => i.author || '').join(' ')).toLowerCase())}">
-            <summary>
+        const find = (g.project + ' ' + (g.members || '') + ' ' +
+            g.items.map(x => x.author || '').join(' ')).toLowerCase();
+        return `<article class="team" data-find="${esc(find)}">
+            <div class="t-head">
                 <div class="t-main">
                     <div class="t-title">${esc(g.project)}</div>
                     <div class="t-members">${esc(subtitle)}</div>
                     <div class="t-meta">
                         <span class="badge">${solo ? '🙋 Individual' : '👥 En equipo'}</span>
                         <span class="badge">${g.items.length} respuesta${g.items.length === 1 ? '' : 's'}</span>
-                        <span class="badge lime">Última: ${esc(dateOf(g.items[0]))}</span>
+                        <span class="badge lime">Enviado: ${esc(dateOf(g.items[0]))}</span>
                     </div>
                 </div>
-                <span class="chev">Ver ▾</span>
-            </summary>
-            <div class="t-body">${items}</div>
-        </details>`;
+                <button class="btn small" type="button" data-detail="${i}">🔍 Ver con mayor detalle</button>
+            </div>
+            ${previewOf(g)}
+        </article>`;
+    }
+
+    /* Vista previa: la curva de emociones completa del recorrido */
+    function previewOf(g) {
+        const em = (g.items[0] || {}).emotions || [];
+        const faces = STAGES.map((s, i) => {
+            const lvl = typeof em[i] === 'number' ? em[i] : 50;
+            const e = emoOf(lvl);
+            return `<span class="face" style="--a:${s.color}" title="${esc(s.name)}: ${esc(e.label)} ${lvl}">
+                ${e.emoji}</span>`;
+        }).join('');
+        return `<div class="t-preview">
+            <div class="pv-label">Recorrido emocional del equipo</div>
+            <div class="pv-curve">${M.curve(em)}</div>
+            <div class="pv-faces">${faces}</div>
+        </div>`;
     }
 
     function dateOf(r) {
-        const d = r.created_at ? new Date(r.created_at) : null;
+        const d = r && r.created_at ? new Date(r.created_at) : null;
         return d && !isNaN(d) ? d.toLocaleString('es-CO') : '—';
     }
 
-    function itemCard(r) {
-        const cells = r.cells || {};
-        let h = `<div class="resp">
-            <div class="resp-head">📝 Respuesta de <b>${esc(r.author || 'todo el equipo')}</b>
-                <span>${esc(dateOf(r))}</span></div>`;
+    /* ---------- vista detalle: el journey map desglosado ---------- */
+    let detailIndex = null;
 
-        STAGES.forEach((s, i) => {
-            const lvl = (r.emotions || [])[i];
-            const e = emoOf(typeof lvl === 'number' ? lvl : 50);
-            h += `<div class="tstage" style="--a:${s.color}">
-                <h4><span>${s.icon}</span> Etapa ${i + 1} · ${s.name}</h4>
-                <div class="rows">`;
-            ROWS.forEach(row => {
-                const val = (cells[row.key] || [])[i] || '—';
-                h += `<div class="r"><i>${row.icon} ${row.label}</i>${esc(val)}</div>`;
-            });
-            h += `<div class="r emo"><span class="big">${e.emoji}</span>
-                    <span><i>🙂 Emoción</i>${e.label} · ${typeof lvl === 'number' ? lvl : '—'} / 100</span></div>
-                </div></div>`;
+    function openDetail(i) {
+        const g = currentGroups[i];
+        if (!g) return;
+        detailIndex = i;
+        const solo = g.mode === 'individual';
+        $('dt-project').textContent = g.project;
+        $('dt-members').textContent = solo
+            ? 'Relleno individual · un solo participante'
+            : (g.members || 'Sin miembros registrados');
+        $('dt-meta').textContent = (solo ? '🙋 Individual' : '👥 En equipo') +
+            ' · ' + g.items.length + ' respuesta' + (g.items.length === 1 ? '' : 's') +
+            ' · enviado el ' + dateOf(g.items[0]);
+
+        const wide = window.innerWidth >= 1160;
+        $('dt-resp').innerHTML = g.items.map((r, k) => `
+            <div class="resp">
+                <div class="resp-head">📝 Enviado por <b>${esc(r.author || 'todo el equipo')}</b>
+                    <span>${esc(dateOf(r))}</span></div>
+                <div class="board-wrap" ${wide ? '' : 'hidden'}><div class="board" data-m="${k}"></div></div>
+                <div class="stages" data-c="${k}" ${wide ? 'hidden' : ''}></div>
+            </div>`).join('');
+
+        g.items.forEach((r, k) => {
+            const target = $('dt-resp').querySelector(wide ? `[data-m="${k}"]` : `[data-c="${k}"]`);
+            M.render(target, { cells: r.cells || {}, emotions: r.emotions || [] },
+                { readOnly: true, force: wide ? 'table' : 'cards' });
         });
 
-        return h + '</div>';
+        $('view-panel').hidden = true;
+        $('view-detail').hidden = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function closeDetail() {
+        detailIndex = null;
+        $('dt-resp').innerHTML = '';
+        $('view-detail').hidden = true;
+        $('view-panel').hidden = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    $('btn-back').addEventListener('click', closeDetail);
+
+    $('teams').addEventListener('click', e => {
+        const b = e.target.closest('[data-detail]');
+        if (b) openDetail(+b.dataset.detail);
+    });
 
     /* ---------- búsqueda ---------- */
     $('search').addEventListener('input', () => {
@@ -269,6 +298,15 @@
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         toast('Archivo descargado ✅');
+    });
+
+    /* ---------- al redimensionar, la vista detalle pasa de tabla a tarjetas ---------- */
+    let rz = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(rz);
+        rz = setTimeout(() => {
+            if (detailIndex !== null && !$('view-detail').hidden) openDetail(detailIndex);
+        }, 200);
     });
 
     /* ---------- sesión (evita volver a poner la contraseña en esta pestaña) ---------- */

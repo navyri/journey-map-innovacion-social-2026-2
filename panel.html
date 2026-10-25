@@ -62,9 +62,29 @@
 
             <div class="toolbar">
                 <input class="search" id="search" type="search" placeholder="Buscar equipo, miembro o proyecto…">
+                <a class="btn small ghost" href="index.html?demo=1">👀 Demo de llenado</a>
             </div>
 
             <div id="teams"></div>
+        </section>
+
+        <!-- ============ VISTA DETALLE (journey map desglosado) ============ -->
+        <section id="view-detail" hidden>
+            <div class="map-head">
+                <div class="who">
+                    <b id="dt-project">—</b>
+                    <span id="dt-members">—</span>
+                    <span id="dt-meta">—</span>
+                </div>
+                <div class="acts">
+                    <button class="btn small soft" id="btn-back" type="button">← Volver a resultados</button>
+                </div>
+            </div>
+
+            <div class="notice">🔒 Journey map <b>enviado</b> · vista de solo lectura. Las filas son las 4 preguntas
+                de cada etapa y la fila de emociones muestra cómo se sintió el usuario en todo el recorrido.</div>
+
+            <div id="dt-resp"></div>
         </section>
     </div>
 
@@ -72,6 +92,7 @@
 
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="map-render.js"></script>
     <script src="panel.js"></script>
 </body>
 
