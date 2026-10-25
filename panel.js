@@ -199,7 +199,7 @@
     function itemCard(r) {
         const cells = r.cells || {};
         let h = `<div class="resp">
-            <div class="resp-head">📝 Respuesta de <b>${esc(r.author || '—')}</b>
+            <div class="resp-head">📝 Respuesta de <b>${esc(r.author || 'todo el equipo')}</b>
                 <span>${esc(dateOf(r))}</span></div>`;
 
         STAGES.forEach((s, i) => {
@@ -244,7 +244,7 @@
                 const lvl = (r.emotions || [])[i];
                 const e = emoOf(typeof lvl === 'number' ? lvl : 50);
                 rows.push([
-                    r.project || '', mod, r.members || '', r.author || '', dateOf(r),
+                    r.project || '', mod, r.members || '', r.author || 'Todo el equipo', dateOf(r),
                     `${i + 1}. ${s.name}`,
                     (cells.needs || [])[i] || '',
                     (cells.touchpoints || [])[i] || '',

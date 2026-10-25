@@ -32,8 +32,8 @@ en **Supabase** (tier gratuito) y se publica gratis en **GitHub Pages**: **0 USD
 
 | Característica | Detalle |
 |---|---|
-| Login de equipos | Nombre del proyecto, miembros (texto libre) y quién llena el mapa |
-| Individual o en equipo | Lista desplegable **“¿Quién llenará este journey map?”**: cambia el apartado visible |
+| Login con modalidad | Nombre del proyecto **siempre**; si es *en equipo* se agregan los miembros (texto libre) y si es *individual* el nombre de quien llena |
+| Individual o en equipo | Lista desplegable **“¿Quién llenará este journey map?”**: cambia el apartado visible (en equipo no se pide nombre personal) |
 | Mapa 5 × 5 | Descubrimiento · Consideración · Primer uso · Uso continuo · Recomendación × necesidades, puntos de contacto, pensamientos, soluciones y emociones |
 | Curva de emociones | Deslizador 0–100 por etapa con emoji y etiqueta que se actualizan en vivo |
 | 100 % responsive | ≥1160 px muestra la tabla del diseño original; en celular/tablet cada etapa se vuelve una tarjeta apilable (sin scroll horizontal) |
@@ -52,7 +52,7 @@ en **Supabase** (tier gratuito) y se publica gratis en **GitHub Pages**: **0 USD
 **Salón (equipos):**
 
 1. Abren el link → *Entrada de equipos*.
-2. Eligen **👥 En equipo** (proyecto + miembros) o **🙋 Individual** (solo su nombre).
+2. Eligen **👥 En equipo** (proyecto + miembros) o **🙋 Individual** (proyecto + su nombre).
 3. Llenan las 4 preguntas de cada etapa y mueven el deslizador de emociones.
 4. *Guardar mi mapa* → modal de confirmación → ✅ listo.
 

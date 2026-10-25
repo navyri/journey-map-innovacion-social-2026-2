@@ -50,13 +50,13 @@
                     <p class="hint" id="mode-hint">Se registrará el proyecto con todos sus miembros.</p>
                 </div>
 
-                <div class="field-group" id="grp-team">
-                    <div class="field">
-                        <label for="f-project">Nombre del proyecto <span>obligatorio</span></label>
-                        <input id="f-project" name="project" type="text" placeholder="Ej. Vape Cycle"
-                            autocomplete="off" maxlength="80">
-                    </div>
+                <div class="field">
+                    <label for="f-project">Nombre del proyecto <span>obligatorio</span></label>
+                    <input id="f-project" name="project" type="text" placeholder="Ej. Vape Cycle"
+                        autocomplete="off" maxlength="80">
+                </div>
 
+                <div class="field-group" id="grp-team">
                     <div class="field">
                         <label for="f-members">Miembros del equipo <span>obligatorio</span></label>
                         <textarea id="f-members" name="members"
@@ -65,10 +65,12 @@
                     </div>
                 </div>
 
-                <div class="field">
-                    <label for="f-author" id="l-author">Tu nombre personal <span>obligatorio</span></label>
-                    <input id="f-author" name="author" type="text" placeholder="¿Quién está llenando este mapa?"
-                        autocomplete="name" maxlength="80" required>
+                <div class="field-group" id="grp-solo" hidden>
+                    <div class="field">
+                        <label for="f-author" id="l-author">Nombre individual <span>obligatorio</span></label>
+                        <input id="f-author" name="author" type="text" placeholder="¿Quién está llenando este mapa?"
+                            autocomplete="name" maxlength="80">
+                    </div>
                 </div>
 
                 <button class="btn" id="btn-enter" type="submit">Entrar al mapa →</button>

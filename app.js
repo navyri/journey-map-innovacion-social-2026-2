@@ -321,13 +321,12 @@
         const mode = $('f-mode').value;
         const team = mode === 'equipo';
         $('grp-team').hidden = !team;
-        $('l-author').innerHTML = team
-            ? 'Tu nombre personal <span>obligatorio</span>'
-            : 'Tu nombre <span>obligatorio</span>';
+        $('grp-solo').hidden = team;
         $('mode-hint').textContent = team
-            ? 'Se registrará el proyecto con todos sus miembros.'
-            : 'Se registrará solo tu nombre y aparecerás en el panel por separado.';
-        $('f-author').placeholder = team ? '¿Quién está llenando este mapa?' : 'Escribe tu nombre completo';
+            ? 'Se guarda el proyecto con todos sus miembros (no se pide nombre personal).'
+            : 'Se guarda el proyecto llenado por una sola persona.';
+        $('f-members').value = team ? $('f-members').value : '';
+        if (team) $('f-author').value = '';
         loginError('');
     }
     $('f-mode').addEventListener('change', applyMode);
@@ -338,13 +337,13 @@
         loginError('');
 
         const mode = $('f-mode').value;
-        const author = $('f-author').value.trim();
-        const project = mode === 'equipo' ? $('f-project').value.trim() : author;
+        const project = $('f-project').value.trim();
         const members = mode === 'equipo' ? $('f-members').value.trim() : '';
+        const author = mode === 'individual' ? $('f-author').value.trim() : '';
 
-        if (mode === 'equipo' && !project) return loginError('Escribe el nombre de tu proyecto.');
+        if (!project) return loginError('Escribe el nombre de tu proyecto.');
         if (mode === 'equipo' && !members) return loginError('Agrega al menos un miembro del equipo.');
-        if (!author) return loginError(mode === 'equipo' ? 'Escribe tu nombre personal.' : 'Escribe tu nombre.');
+        if (mode === 'individual' && !author) return loginError('Escribe tu nombre individual.');
 
         const btn = $('btn-enter');
         btn.disabled = true;
@@ -378,12 +377,10 @@
                 savedRecord = dup;
 
                 $('map-notice').hidden = false;
-                $('map-notice').innerHTML = state.mode === 'individual'
-                    ? `<b>⚠️ ${esc(dup.author || dup.project)} ya envió su mapa.</b>
-                        Solo se permite un envío por participante, así que aquí puedes consultar lo que registró.`
-                    : `<b>⚠️ El proyecto “${esc(dup.project)}” ya envió su mapa.</b>
-                        Solo se permite un envío por equipo, así que aquí puedes consultar lo que registraron
-                        (persona que lo llenó: ${esc(dup.author || '—')}).`;
+                $('map-notice').innerHTML = `<b>⚠️ El proyecto “${esc(dup.project)}” ya envió su mapa.</b>
+                    Solo se permite un envío por proyecto, así que aquí puedes consultar lo que registraron
+                    ${dup.author ? `(persona que lo llenó: ${esc(dup.author)})` : '(todo el equipo)'}.
+                    `;
                 $('save-bar').hidden = true;
                 toast('Este proyecto ya tiene un mapa guardado');
             } else {
@@ -406,11 +403,12 @@
     });
 
     function fillHead() {
+        const team = state.mode === 'equipo';
         $('mh-project').textContent = state.project;
-        $('mh-members').textContent = state.mode === 'individual'
-            ? ' Modalidad: Individual · un solo participante'
-            : 'Miembros: ' + state.members;
-        $('mh-author').textContent = 'Llenado por: ' + state.author;
+        $('mh-members').textContent = team
+            ? 'Modalidad: En equipo · ' + state.members
+            : 'Modalidad: Individual';
+        $('mh-author').textContent = team ? 'Llenado por: todo el equipo' : 'Llenado por: ' + state.author;
     }
 
     $('btn-exit').addEventListener('click', () => {
@@ -467,9 +465,9 @@
             readOnly = true;
             $('done-summary').innerHTML = `
                 <div><b>Modalidad</b><span>${isTeam ? '👥 En equipo' : '🙋 Individual'}</span></div>
-                <div><b>${isTeam ? 'Proyecto' : 'Participante'}</b><span>${esc(state.project)}</span></div>
+                <div><b>Proyecto</b><span>${esc(state.project)}</span></div>
                 ${isTeam ? `<div><b>Miembros</b><span>${esc(state.members)}</span></div>` : ''}
-                <div><b>Llenado por</b><span>${esc(state.author)}</span></div>
+                <div><b>Llenado por</b><span>${isTeam ? 'Todo el equipo' : esc(state.author)}</span></div>
                 <div><b>Fecha</b><span>${new Date().toLocaleString('es-CO')}</span></div>
                 <div><b>Estado</b><span>✅ Enviado correctamente${isRemote ? '' : ' (modo local: solo en este dispositivo)'}</span></div>`;
             showView('done');
