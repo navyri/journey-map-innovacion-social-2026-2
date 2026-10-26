@@ -78,6 +78,7 @@
             $('view-panel').hidden = false;
             $('pw-err').hidden = true;
             load();
+            startAuto();
         } else {
             $('pw-err').hidden = false;
             $('pw').value = '';
@@ -88,28 +89,50 @@
     $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
 
     /* ---------- carga ---------- */
-    async function load() {
+    async function load(silent) {
         const box = $('teams');
-        box.innerHTML = '<div class="box"><p class="empty">Cargando respuestas…</p></div>';
+        const antes = records.length;
+        if (!silent) box.innerHTML = '<div class="box"><p class="empty">Cargando respuestas…</p></div>';
         try {
             records = await DB.list();
             $('panel-updated').textContent =
                 (isRemote ? 'Actualizado ' : 'Solo en este dispositivo · ') +
                 new Date().toLocaleString('es-CO');
             render();
+            if (silent && records.length > antes && antes > 0) {
+                toast(`Llegaron ${records.length - antes} respuesta${records.length - antes === 1 ? '' : 's'} nueva${records.length - antes === 1 ? '' : 's'} 🎉`);
+            }
         } catch (e) {
             console.error(e);
+            if (silent) return;   // en segundo plano no se tumba lo que se está viendo
             box.innerHTML = '<div class="box"><p class="empty">⚠️ No se pudo cargar la información. ' +
                 'Revisa tu conexión y pulsa “Actualizar”.</p></div>';
             $('stats').innerHTML = '';
+            $('avg').hidden = true;
         }
     }
-    $('btn-refresh').addEventListener('click', load);
+    $('btn-refresh').addEventListener('click', () => load());
+
+    /* ---------- actualización automática cada 45 s ---------- */
+    let autoTimer = null;
+    function startAuto() {
+        stopAuto();
+        autoTimer = setInterval(() => {
+            if (!unlocked || document.hidden) return;
+            if (detailIndex !== null) return;               // no interrumpir la vista detalle
+            if (($('search').value || '').trim()) return;   // no pisar una búsqueda activa
+            load(true);
+        }, 45000);
+    }
+    function stopAuto() {
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
 
     /* ---------- cerrar sesión ---------- */
     $('btn-logout').addEventListener('click', () => {
         sessionStorage.removeItem('vc_panel');
         unlocked = false;
+        stopAuto();
         records = [];
         $('pw').value = '';
         resetEye();
@@ -141,6 +164,27 @@
             String(a.project).localeCompare(String(b.project), 'es'));
     }
 
+    /* ---------- emociones promedio de todos los equipos ---------- */
+    function renderAvg(gs) {
+        const box = $('avg');
+        if (!box) return;
+        if (!gs.length) { box.hidden = true; return; }
+
+        const sets = gs.map(g => (g.items[0] || {}).emotions || []);
+        const avg = [0, 1, 2, 3, 4].map(i => Math.round(
+            sets.reduce((sum, e) => sum + (typeof e[i] === 'number' ? e[i] : 50), 0) / sets.length
+        ));
+
+        $('avg-curve').innerHTML = M.curve(avg);
+        $('avg-sub').textContent = `promedio de ${gs.length} ${gs.length === 1 ? 'equipo' : 'equipos'} · escala 0–100`;
+        $('avg-steps').innerHTML = STAGES.map((s, i) => {
+            const e = emoOf(avg[i]);
+            return `<span class="avg-step" style="--a:${s.color}">
+                <b>${e.emoji}</b><i>${esc(s.name)}</i><u>${avg[i]}</u></span>`;
+        }).join('');
+        box.hidden = false;
+    }
+
     function render() {
         const gs = groups();
         currentGroups = gs;
@@ -160,6 +204,8 @@
             `<div class="stat"><b>${gs.length}</b> registro${gs.length === 1 ? '' : 's'}</div>` +
             `<div class="stat"><b>${records.length}</b> mapa${records.length === 1 ? '' : 's'} enviado${records.length === 1 ? '' : 's'}</div>` +
             `<div class="stat"><b>${totalMembers.size}</b> participante${totalMembers.size === 1 ? '' : 's'}</div>`;
+
+        renderAvg(gs);
 
         if (!gs.length) {
             $('teams').innerHTML = '<div class="box"><p class="empty">Aún no hay respuestas registradas. ' +
@@ -233,6 +279,12 @@
             ' · enviado el ' + dateOf(g.items[0]);
 
         const wide = window.innerWidth >= 1160;
+
+        /* la vista se muestra ANTES de medir las casillas: si no, los textareas
+           se calculan con altura 0 y quedarían colapsados */
+        $('view-panel').hidden = true;
+        $('view-detail').hidden = false;
+
         $('dt-resp').innerHTML = g.items.map((r, k) => `
             <div class="resp">
                 <div class="resp-head">📝 Enviado por <b>${esc(r.author || 'todo el equipo')}</b>
@@ -247,8 +299,6 @@
                 { readOnly: true, force: wide ? 'table' : 'cards' });
         });
 
-        $('view-panel').hidden = true;
-        $('view-detail').hidden = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -317,6 +367,28 @@
         toast('Archivo descargado ✅');
     });
 
+    /* ---------- copia de seguridad (.json) ---------- */
+    $('btn-backup').addEventListener('click', () => {
+        if (!records.length) { toast('No hay respuestas que respaldar'); return; }
+
+        const data = {
+            proyecto: 'Vape Cycle · Journey Map',
+            exportado: new Date().toISOString(),
+            total: records.length,
+            registros: records
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'vape-cycle-respaldo-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast('Copia de seguridad descargada 💾');
+    });
+
     /* ---------- al redimensionar, la vista detalle pasa de tabla a tarjetas ---------- */
     let rz = null;
     window.addEventListener('resize', () => {
@@ -332,5 +404,6 @@
         $('view-gate').hidden = true;
         $('view-panel').hidden = false;
         load();
+        startAuto();
     }
 })();

@@ -72,12 +72,20 @@
                 <div class="acts">
                     <button class="btn small soft" id="btn-refresh" type="button">↻ Actualizar</button>
                     <button class="btn small" id="btn-csv" type="button">⬇ Exportar a Excel (CSV)</button>
+                    <button class="btn small soft" id="btn-backup" type="button">💾 Copia de seguridad (.json)</button>
                     <a class="btn small ghost" href="index.html">← Mapa</a>
                     <button class="btn small outline" id="btn-logout" type="button">🚪 Cerrar sesión</button>
                 </div>
             </div>
 
             <div class="stats" id="stats"></div>
+
+            <!-- emociones promedio de todos los equipos -->
+            <div class="avg" id="avg" hidden>
+                <div class="avg-head"><b>🙂 Emociones promedio</b><span id="avg-sub">—</span></div>
+                <div class="avg-curve" id="avg-curve"></div>
+                <div class="avg-steps" id="avg-steps"></div>
+            </div>
 
             <div class="toolbar">
                 <input class="search" id="search" type="search" placeholder="Buscar equipo, miembro o proyecto…">

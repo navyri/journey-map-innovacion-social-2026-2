@@ -119,7 +119,8 @@
             $('modal-tag').textContent = opt.tag || 'Aviso';
             $('modal-ic').textContent = opt.icon || '⚠️';
             $('modal-title').textContent = opt.title || '';
-            $('modal-msg').textContent = opt.message || '';
+            if (opt.html) { $('modal-msg').innerHTML = opt.html; }
+            else { $('modal-msg').textContent = opt.message || ''; }
             $('modal-yes').textContent = opt.ok || 'Aceptar';
             $('modal-no').textContent = opt.cancel || 'Cancelar';
             $('modal-no').hidden = opt.cancel === false;
@@ -140,9 +141,10 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    /* la casilla crece con el texto, pero con un tope: si es muy larga
+       muestra un scroll sutil en su interior (sin límite de caracteres) */
     function grow(ta) {
-        ta.style.height = 'auto';
-        ta.style.height = (ta.scrollHeight + 2) + 'px';
+        M.fit(ta);
     }
 
     /* ---------- render del mapa (usa el render compartido map-render.js) ---------- */
@@ -172,12 +174,37 @@
 
     function updateStatus() {
         const bar = $('fill-status');
+        updateDots();
         if (!bar) return;
         if (readOnly) { bar.textContent = 'Vista de solo lectura · este mapa ya fue enviado'; return; }
         const n = missingFields();
         bar.textContent = n === 0
             ? '✅ Todos los campos completos. ¡Listo para guardar!'
-            : `Faltan ${n} campo${n === 1 ? '' : 's'} por completar`;
+            : `Faltan ${n} campo${n === 1 ? '' : 's'} por completar (${20 - n}/20)`;
+    }
+
+    /* barra de progreso: un punto por cada una de las 20 casillas */
+    function buildDots() {
+        const box = $('dots');
+        if (!box) return;
+        let h = '';
+        STAGES.forEach((s, i) => {
+            TEXT_ORDER.forEach(k => {
+                h += `<span class="dot" style="--a:${s.color}" data-k="${k}" data-i="${i}"></span>`;
+            });
+        });
+        box.innerHTML = h;
+    }
+
+    function updateDots() {
+        const box = $('dots');
+        if (!box) return;
+        box.hidden = readOnly;
+        if (readOnly) return;
+        box.querySelectorAll('.dot').forEach(d => {
+            const v = state.cells[d.dataset.k][+d.dataset.i];
+            d.classList.toggle('on', !!String(v || '').trim());
+        });
     }
 
     function refreshEmoNode(i) {
@@ -413,6 +440,36 @@
     if (/[?&]demo=1\b/.test(location.search)) startDemo();
 
     /* ---------- guardar ---------- */
+    /* ---------- vista previa del mapa (dentro del modal de confirmación) ---------- */
+    /* Sin recorte de texto: se muestra el contenido completo de cada casilla
+       (no hay límite de caracteres) y el desbordamiento lo resuelve el
+       scroll propio del modal. */
+    function previewHTML() {
+        const steps = STAGES.map((s, i) => {
+            const e = emoOf(state.emotions[i]);
+            return `<span class="pv-step" style="--a:${s.color}">
+                <b>${e.emoji}</b><i>${esc(s.name)}</i><u>${state.emotions[i]}</u></span>`;
+        }).join('');
+
+        const stages = STAGES.map((s, i) => {
+            const rows = TEXT_ORDER.map(k => {
+                const r = M.ROWS[k];
+                const v = esc(String(state.cells[k][i] == null ? '' : state.cells[k][i]).trim())
+                    .replace(/\n/g, '<br>');
+                return `<div class="pv-row"><b>${r.icon} ${r.label}</b><span>${v || '<em>—</em>'}</span></div>`;
+            }).join('');
+            return `<div class="pv-stage" style="--a:${s.color}">
+                <h5><span>${s.icon}</span> Etapa ${i + 1} · ${s.name}</h5>${rows}</div>`;
+        }).join('');
+
+        return `<div class="prev">
+            <div class="prev-warn">⚠️ Al enviar este mapa <b>ya no podrás editarlo</b>. Revisa que todo esté bien.</div>
+            <div class="prev-curve">${M.curve(state.emotions)}</div>
+            <div class="prev-steps">${steps}</div>
+            <div class="prev-body">${stages}</div>
+        </div>`;
+    }
+
     $('btn-save').addEventListener('click', async () => {
         const err = $('save-err');
         err.hidden = true;
@@ -447,12 +504,12 @@
 
         const isTeam = state.mode === 'equipo';
         const ok = await modalAsk({
-            tag: 'Confirmar envío',
+            tag: 'Vista previa',
             icon: isTeam ? '👥' : '🙋',
-            title: isTeam ? `¿Guardar el mapa de “${state.project}”?` : `¿Guardar tu mapa, ${state.author}?`,
-            message: 'Recuerda: es un ENVÍO ÚNICO y después no podrás modificarlo.',
-            ok: 'Sí, guardar',
-            cancel: 'Revisar otra vez'
+            title: isTeam ? `¿Enviar el mapa de “${state.project}”?` : `¿Enviar tu mapa, ${state.author}?`,
+            html: previewHTML(),
+            ok: '✅ Enviar definitivamente',
+            cancel: '← Seguir editando'
         });
         if (!ok) return;
 
@@ -529,5 +586,7 @@
         document.fonts.ready.then(() => { if (!$('view-map').hidden) renderMap(); });
     }
 
-    showView('login');
+    buildDots();                 // 20 casillas de progreso, una por campo del mapa
+    if (demo) updateStatus();    // la demo ya abrió la vista del mapa: pinta los puntos
+    else showView('login');
 })();

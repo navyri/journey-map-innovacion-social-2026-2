@@ -147,21 +147,35 @@
         }).join('');
     }
 
+    /* ---------- ajuste de altura de las casillas ----------
+       No hay límite de caracteres: el texto se puede escribir todo lo largo que
+       se quiera. La casilla crece con el contenido hasta MAX_H px; si lo supera,
+       queda fija y muestra un scroll sutil en su interior en vez de alargar
+       todavía más la página. */
+    const MAX_H = 154;
+
+    function fit(t) {
+        t.style.height = 'auto';
+        const h = t.scrollHeight + 2;
+        t.style.height = Math.min(h, MAX_H) + 'px';
+        t.style.overflowY = h > MAX_H ? 'auto' : 'hidden';
+    }
+
     /* ---------- render principal ---------- */
     function render(container, data, opts) {
         opts = opts || {};
         const wide = opts.force ? opts.force === 'table' : window.innerWidth >= 1160;
         container.innerHTML = wide ? table(data, opts) : cards(data, opts);
-        container.querySelectorAll('textarea').forEach(t => {
-            t.style.height = 'auto';
-            t.style.height = (t.scrollHeight + 2) + 'px';
-        });
+        container.querySelectorAll('textarea').forEach(fit);
+        /* red de seguridad: si el contenedor estaba oculto al medir (altura 0),
+           se vuelve a ajustar en el siguiente cuadro, cuando ya es visible */
+        requestAnimationFrame(() => container.querySelectorAll('textarea').forEach(fit));
         return wide ? 'table' : 'cards';
     }
 
     window.VapeMap = {
         STAGES: STAGES, ROWS: ROWS, TEXT_ORDER: TEXT_ORDER, BOARD_ORDER: BOARD_ORDER,
         BANDS: BANDS, emoOf: emoOf, curve: curve, emoNode: emoNode,
-        table: table, cards: cards, render: render
+        table: table, cards: cards, render: render, fit: fit
     };
 })();
