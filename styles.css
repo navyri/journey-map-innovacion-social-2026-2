@@ -394,6 +394,38 @@ button, input, textarea, select { font-family: inherit; font-size: inherit; colo
     display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis
 }
 .avg-step u { text-decoration: none; font-family: var(--display); font-weight: 800; font-size: .85rem }
+
+/* checklist del salón: quién ya envió y quién falta */
+.roster {
+    background: #fff; border: 2px solid var(--ink); border-radius: 20px;
+    box-shadow: var(--shadow); padding: .9rem 1rem 1rem; margin-bottom: 1.1rem;
+}
+.roster-head {
+    display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap;
+    margin-bottom: .6rem
+}
+.roster-head b { font-family: var(--display); font-size: 1.02rem }
+.roster-head span { font-size: .78rem; opacity: .7 }
+.roster-acts { margin-left: auto }
+.roster-list { display: flex; flex-wrap: wrap; gap: .4rem }
+.r-item {
+    display: inline-flex; align-items: center; gap: .35rem;
+    border: 2px solid var(--ink); border-radius: 100px; padding: .3rem .72rem;
+    font-size: .82rem; font-weight: 700; overflow-wrap: anywhere
+}
+.r-item.ok { background: var(--lime); color: var(--ink) }
+.r-item.no {
+    background: var(--bg-mid); color: var(--cream); border-style: dashed; opacity: .9
+}
+.roster-edit { margin-top: .7rem }
+.roster-edit textarea {
+    width: 100%; border: 2px solid var(--ink); border-radius: 14px; background: var(--cream);
+    padding: .7rem .85rem; font: inherit; font-size: .9rem; line-height: 1.5;
+    outline: none; resize: vertical; display: block
+}
+.roster-edit textarea:focus { box-shadow: 0 0 0 4px rgba(139, 92, 246, .22); border-color: var(--lav) }
+.roster-btns { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .55rem }
+#btn-roster-add { margin-bottom: 1.1rem }
 .stat { background: var(--bg-mid); color: var(--cream); border-radius: 14px; padding: .55rem .9rem; font-size: .82rem }
 .stat b { font-family: var(--display); color: var(--lime); font-size: 1.05rem; margin-right: .3rem }
 
@@ -484,4 +516,28 @@ body { -webkit-tap-highlight-color: rgba(200, 242, 59, .45) }
 
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important }
+}
+
+/* ===== impresión (Guardar como PDF desde el navegador) ===== */
+@media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+    body { background: #fff }
+    .backdrop, #toast, .corner, .toolbar, .roster, .roster-edit, #btn-roster-add,
+    #view-gate, .modal-back { display: none !important }
+    .page { max-width: none; padding: 0; margin: 0 }
+    .acts, button { display: none !important }
+    .h1 { font-size: 1.6rem }
+    .box, .team, .avg, .resp, .stage-card, .board, .cell,
+    .emo-row, .stage-head, .stats .stat {
+        box-shadow: none !important
+    }
+    .resp, .stage-card, .team, .avg, .cell { break-inside: avoid; page-break-inside: avoid }
+    /* el texto de las casillas se imprime completo, sin scroll ni recuadro */
+    textarea {
+        height: auto !important; max-height: none !important; overflow: visible !important;
+        border: 0 !important; background: transparent !important; padding: 0 !important;
+        resize: none !important; opacity: 1 !important
+    }
+    input[type=range] { display: none !important }
+    #dt-resp textarea, .cell textarea { font-size: .8rem }
 }

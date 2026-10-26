@@ -185,6 +185,92 @@
         box.hidden = false;
     }
 
+    /* ---------- checklist del salón (lista guardada solo en este navegador) ---------- */
+    const ROSTER_KEY = 'vapecycle_roster';
+
+    const normKey = s => String(s || '').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ').trim();
+
+    function rosterList() {
+        try { return JSON.parse(localStorage.getItem(ROSTER_KEY) || '[]'); }
+        catch (e) { return []; }
+    }
+
+    /* un nombre de la lista se considera "enviado" si coincide con el proyecto,
+       con los miembros o con quien lo llenó (sin importar mayúsculas ni tildes) */
+    function rosterMatch(entrada, g) {
+        const e = normKey(entrada);
+        if (!e) return false;
+        const p = normKey(g.project);
+        if (p && (p === e || p.includes(e) || e.includes(p))) return true;
+        const gente = g.mode === 'individual'
+            ? g.items.map(x => x.author || '').join(' ')
+            : (g.members || '');
+        const n = normKey(gente);
+        return !!n && n.includes(e);
+    }
+
+    function renderRoster(gs) {
+        const box = $('roster'), add = $('btn-roster-add');
+        if (!box || !add) return;
+        gs = gs || [];
+        const lista = rosterList();
+        if (!$('roster-edit').hidden) return;   // no pisar lo que se está escribiendo
+
+        if (!lista.length) {
+            box.hidden = true;
+            add.hidden = false;
+            return;
+        }
+        box.hidden = false;
+        add.hidden = true;
+
+        let hechos = 0;
+        $('roster-list').innerHTML = lista.map(nombre => {
+            const ok = gs.some(g => rosterMatch(nombre, g));
+            if (ok) hechos++;
+            return `<span class="r-item ${ok ? 'ok' : 'no'}">${ok ? '✅' : '⏳'} ${esc(nombre)}</span>`;
+        }).join('');
+        $('roster-sub').textContent = `${hechos} de ${lista.length} ya ${hechos === 1 ? 'envió' : 'enviaron'}`;
+        $('roster-input').value = lista.join('\n');
+    }
+
+    $('btn-roster-add').addEventListener('click', () => {
+        $('roster').hidden = false;
+        $('btn-roster-add').hidden = true;
+        $('roster-edit').hidden = false;
+        $('roster-input').focus();
+    });
+    $('btn-roster-edit').addEventListener('click', () => {
+        const ed = $('roster-edit');
+        ed.hidden = !ed.hidden;
+        if (!ed.hidden) {
+            $('roster-input').value = rosterList().join('\n');
+            $('roster-input').focus();
+        }
+    });
+    $('btn-roster-cancel').addEventListener('click', () => {
+        $('roster-edit').hidden = true;
+        renderRoster(currentGroups);
+    });
+    $('btn-roster-save').addEventListener('click', () => {
+        const items = $('roster-input').value.split('\n')
+            .map(s => s.trim()).filter(Boolean)
+            .filter((s, i, a) => a.findIndex(x => normKey(x) === normKey(s)) === i);
+        if (items.length) localStorage.setItem(ROSTER_KEY, JSON.stringify(items));
+        else localStorage.removeItem(ROSTER_KEY);
+        $('roster-edit').hidden = true;
+        renderRoster(currentGroups);
+        toast(items.length ? 'Lista guardada en este navegador 📋' : 'Lista eliminada');
+    });
+    $('btn-roster-clear').addEventListener('click', () => {
+        localStorage.removeItem(ROSTER_KEY);
+        $('roster-edit').hidden = true;
+        renderRoster(currentGroups);
+        toast('Lista del salón eliminada');
+    });
+
     function render() {
         const gs = groups();
         currentGroups = gs;
@@ -206,6 +292,7 @@
             `<div class="stat"><b>${totalMembers.size}</b> participante${totalMembers.size === 1 ? '' : 's'}</div>`;
 
         renderAvg(gs);
+        renderRoster(gs);
 
         if (!gs.length) {
             $('teams').innerHTML = '<div class="box"><p class="empty">Aún no hay respuestas registradas. ' +
@@ -310,6 +397,67 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     $('btn-back').addEventListener('click', closeDetail);
+
+    /* ---------- copiar resumen del equipo (para pegarlo en un documento) ---------- */
+    function summaryText(g) {
+        const solo = g.mode === 'individual';
+        const primero = g.items[0] || {};
+        const em = primero.emotions || [];
+        const L = [
+            'JOURNEY MAP · VAPE CYCLE',
+            'Proyecto: ' + g.project,
+            solo ? 'Relleno individual · un solo participante'
+                : 'Miembros: ' + (g.members || 'Sin miembros registrados'),
+            'Llenado por: ' + (primero.author || 'todo el equipo'),
+            'Enviado: ' + dateOf(primero),
+            ''
+        ];
+        STAGES.forEach((s, i) => {
+            const lvl = typeof em[i] === 'number' ? em[i] : 50;
+            const e = emoOf(lvl);
+            L.push(`${i + 1}. ${s.name} — ${e.emoji} ${e.label} (${lvl}/100)`);
+            M.TEXT_ORDER.forEach(k => {
+                const r = M.ROWS[k];
+                g.items.forEach((rec, idx) => {
+                    const v = String((((rec.cells || {})[k]) || [])[i] || '').trim();
+                    if (!v) return;
+                    const quien = g.items.length > 1 ? ` (${rec.author || 'participante ' + (idx + 1)})` : '';
+                    L.push(`   · ${r.label}${quien}: ${v.replace(/\n/g, '\n     ')}`);
+                });
+            });
+            L.push('');
+        });
+        return L.join('\n');
+    }
+
+    async function copySummary() {
+        const g = currentGroups[detailIndex];
+        if (!g) return;
+        const txt = summaryText(g);
+        let ok = false;
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(txt);
+                ok = true;
+            }
+        } catch (e) { ok = false; }
+        if (!ok) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = txt;
+                ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+                document.body.appendChild(ta);
+                ta.select();
+                ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+            } catch (e) { ok = false; }
+        }
+        toast(ok ? 'Resumen copiado 📋' : 'No se pudo copiar el resumen');
+    }
+    $('btn-copy').addEventListener('click', copySummary);
+
+    /* ---------- imprimir / guardar como PDF el detalle ---------- */
+    $('btn-print').addEventListener('click', () => window.print());
 
     $('teams').addEventListener('click', e => {
         const b = e.target.closest('[data-detail]');

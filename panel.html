@@ -87,6 +87,28 @@
                 <div class="avg-steps" id="avg-steps"></div>
             </div>
 
+            <!-- checklist del salón: quién ya envió y quién falta -->
+            <div class="roster" id="roster" hidden>
+                <div class="roster-head">
+                    <b>📋 Equipos del salón</b>
+                    <span id="roster-sub">—</span>
+                    <div class="roster-acts">
+                        <button class="btn small soft" id="btn-roster-edit" type="button">✏️ Editar lista</button>
+                    </div>
+                </div>
+                <div class="roster-list" id="roster-list"></div>
+                <div class="roster-edit" id="roster-edit" hidden>
+                    <textarea id="roster-input" rows="7"
+                        placeholder="Escribe un equipo o participante por línea…&#10;Equipo Alfa&#10;Equipo Beta&#10;Lucía Prueba"></textarea>
+                    <div class="roster-btns">
+                        <button class="btn small" id="btn-roster-save" type="button">Guardar lista</button>
+                        <button class="btn small soft" id="btn-roster-cancel" type="button">Cancelar</button>
+                        <button class="btn small ghost" id="btn-roster-clear" type="button">Quitar lista</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn small ghost" id="btn-roster-add" type="button" hidden>➕ Agregar la lista del salón</button>
+
             <div class="toolbar">
                 <input class="search" id="search" type="search" placeholder="Buscar equipo, miembro o proyecto…">
                 <a class="btn small ghost" href="index.html?demo=1">👀 Demo de llenado</a>
@@ -104,7 +126,9 @@
                     <span id="dt-meta">—</span>
                 </div>
                 <div class="acts">
-                    <button class="btn small soft" id="btn-back" type="button">← Volver a resultados</button>
+                    <button class="btn small" id="btn-copy" type="button">📋 Copiar resumen</button>
+                    <button class="btn small soft" id="btn-print" type="button">🖨 Imprimir / PDF</button>
+                    <button class="btn small ghost" id="btn-back" type="button">← Volver a resultados</button>
                 </div>
             </div>
 
